@@ -1,0 +1,29 @@
+Option Explicit
+Sub SQL_Connection()
+
+    Dim c As ADODB.Connection
+    Dim rs As ADODB.Recordset
+    Dim connectionstring As String
+
+    connectionstring = "Provider=SQLOLEDB;Data Source=DESKTOP-KLMV80I\SQLEXPRESS01;" & _
+                  "Initial Catalog=mockData;" & _
+                  "Integrated Security=SSPI;"
+
+    Set c = New ADODB.Connection
+    Set rs = New ADODB.Recordset
+    c.Open connectionstring
+
+    Set rs = c.Execute("SELECT * FROM DATA;")
+
+    If Not rs.EOF Then
+        Sheets(1).Range("A1").CopyFromRecordset rs
+        rs.Close
+    Else
+        MsgBox "Error, no data!", vbCritical
+    End If
+
+    If CBool(c.State And adStateOpen) Then c.Close
+    Set c = Nothing
+    Set rs = Nothing
+
+End Sub
