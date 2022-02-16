@@ -6,6 +6,7 @@ Sub SQL_Connection()
     Dim connectionstring As String
     Dim DB_source as String
     Dim DB_table as String
+    Dim table as String
 
     DB_source = ""
     DB_table = ""
@@ -18,7 +19,7 @@ Sub SQL_Connection()
     Set rs = New ADODB.Recordset
     c.Open connectionstring
 
-    Set rs = c.Execute("SELECT * FROM DATA;")
+    Set rs = c.Execute("SELECT * FROM " & table & ";")
 
     If Not rs.EOF Then
         Sheets(1).Range("A1").CopyFromRecordset rs
