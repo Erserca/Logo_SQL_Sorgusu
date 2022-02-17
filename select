@@ -1,3 +1,5 @@
+' Microsoft ActiveX Data Objects 2.0 eklenecek
+
 Option Explicit
 Sub SQL_Connection()
 
