@@ -1,11 +1,7 @@
---Cari Bakiye ve Cari Kart Özel Kodları 
---Excel içinde, bakiye mutabakat için otomatik mail gönderiminde kullanılabilmesi için mail adreslerini de içerir. 
---İlgili carilere mail ile bildirim yapılabilir.
-
 SELECT 
 	CL.CODE AS "KODU",
 	CL.DEFINITION_ AS "UNVAN",
-	ISNULL((select SUM(CLFLINE.AMOUNT) FROM LG_020_01_CLFLINE CLFLINE WHERE CL.LOGICALREF = CLFLINE.CLIENTREF),0) AS [BAKIYE],
+	ROUND(ISNULL ((SELECT SUM(CASE CF.SIGN WHEN 0 THEN CF.AMOUNT ELSE CF.AMOUNT * - 1 END) FROM LG_001_01_CLFLINE CF WHERE CF.CANCELLED = 0 AND CF.CLIENTREF = CL.LOGICALREF), 0),2)AS [BAKİYE (TL)],
 	CL.SPECODE AS "ÖZEL KOD",
 	CL.SPECODE2 AS "ÖZEL KOD 2",
 	CL.SPECODE3 "ÖZEL KOD 3",
