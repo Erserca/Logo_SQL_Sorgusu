@@ -25,7 +25,7 @@ Sub SQL_Connection()
         Sheets(1).Range("A1").CopyFromRecordset rs
         rs.Close
     Else
-        MsgBox "Error, no data!", vbCritical
+        MsgBox "Hata, Veri yok!", vbCritical
     End If
 
     If CBool(c.State And adStateOpen) Then c.Close
