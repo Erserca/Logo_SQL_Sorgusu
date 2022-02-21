@@ -16,7 +16,8 @@ Sub SQL_Connection()
     connectionstring = "Provider=SQLOLEDB;Data Source= "&DB_source&";" & _
                   "Initial Catalog=&"DB_table"&;" & _
                   "Integrated Security=SSPI;"
-
+    'Windows Auth Conn String:
+    '"Provider=SQLOLEDB;Data Source='&DB_source&';Trusted_connection=yes;"
     Set c = New ADODB.Connection
     Set rs = New ADODB.Recordset
     c.Open connectionstring
