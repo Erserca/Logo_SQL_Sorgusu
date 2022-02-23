@@ -1,0 +1,15 @@
+CASE
+       when INVOICE.TRCODE = 1 then 'Satınalma Faturası'
+       when INVOICE.TRCODE = 2 then 'Perakende İade Faturası'
+       when INVOICE.TRCODE = 3 then 'Toptan Satış İade Faturası'
+       when INVOICE.TRCODE = 4 then 'Alınan Hizmet Faturası'
+       when INVOICE.TRCODE = 5 then 'Alınan Proforma Faturası'
+       when INVOICE.TRCODE = 6 then 'Satınalma İade Faturası'
+       when INVOICE.TRCODE = 7 then 'Perakende Satış Faturası'
+       when INVOICE.TRCODE = 8 then 'Toptan Satış Faturası'
+       when INVOICE.TRCODE = 9 then 'Verilen Hizmet Faturası'
+       when INVOICE.TRCODE = 10 then 'Verilen Proforma Faturası'
+       when INVOICE.TRCODE = 13 then 'Alınan Fiyat Farkı Faturası'
+       when INVOICE.TRCODE = 14 then 'Verilen Fiyat Farkı Faturası'
+       when INVOICE.TRCODE = 26 then 'Müstahsil Makbuzu'
+END AS [FATURA TÜRÜ]
