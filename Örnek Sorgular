@@ -1,0 +1,232 @@
+SELECT 
+	   CL.CODE
+	  ,CL.DEFINITION_ 
+  --,CLT.TOTTYP
+	  ,CLT.YEAR_
+    ,CLT.MONTH_
+  --,FORMAT(SUM(CLT.CREDIT), 'C', 'TR-tr') AS [BORÇ]
+  --,FORMAT(SUM(CLT.DEBIT), 'C', 'TR-tr') AS [ALACAK]
+	--,FORMAT(SUM(CLT.DEBIT)-SUM(CLT.CREDIT), 'C', 'TR-tr') AS [BAKİYE]
+	  ,SUM(CLT.CREDIT) AS [BORÇ]
+    ,SUM(CLT.DEBIT) AS [ALACAK]
+	  ,SUM(CLT.DEBIT) AS [BAKİYE]
+	 
+FROM 
+  LV_020_01_CLTOTFIL CLT INNER JOIN
+  LG_020_CLCARD CL WITH(NOLOCK) ON CLT.CARDREF = CL.LOGICALREF
+
+GROUP BY
+
+	   CL.CODE
+	  ,CL.DEFINITION_
+  --,CLT.TOTTYP
+    ,CLT.MONTH_
+    ,CLT.YEAR_
+    
+    
+  
+----------------------------------------
+
+
+
+SELECT 
+	'020' AS [ŞİRKET],
+	EMF.YEAR_ as [YIL],
+	EMF.MONTH_ AS [AY],
+	EMF.ACCOUNTCODE AS [HESAP KODU],
+	FORMAT(SUM(EMF.DEBIT), 'C','TR-tr') AS BORÇ,
+	FORMAT(SUM(EMF.CREDIT), 'C','TR-tr') AS ALACAK,
+	FORMAT(SUM(EMF.DEBIT) - SUM(EMF.CREDIT), 'C','TR-tr') AS BAKİYE 
+	
+
+FROM 
+	LG_020_01_EMFLINE EMF
+
+
+GROUP BY
+	EMF.KEBIRCODE,
+	EMF.YEAR_,
+	EMF.MONTH_,
+	EMF.ACCOUNTCODE
+  
+  
+-----------------------------------
+
+
+
+SELECT 
+	'20' AS [ŞİRKET],
+	CL.CODE AS [CARİ KODU],
+	CL.DEFINITION_ AS [CARİ UNVANI],
+	CONVERT(VARCHAR(10),ST.DATE_,105) AS TARİH,
+	INV.FICHENO [FT NO],
+	ST.AMOUNT AS [ADET],
+	ST.TOTAL AS [TUTAR],
+	ST.PRICE AS [FİYAT],
+	ST.MONTH_ AS [AY],
+	ST.YEAR_ AS [YIL],
+	IT.CODE AS [MALZEME KODU],
+	IT.NAME AS [MALZEME ADI],
+	IT.SPECODE AS [MALZEME ÖZEL KOD 1],
+	IT.SPECODE2 AS [MALZEME ÖZEL KOD 2],
+	IT.SPECODE3 AS [MALZEME ÖZEL KOD 3],
+	IT.SPECODE4 AS [MALZEME ÖZEL KOD 4],
+	IT.SPECODE5 AS [MALZEME ÖZEL KOD 5],
+	ST.TRCODE AS [BELGE TÜRÜ],
+	(SELECT AMBAR.NAME FROM L_CAPIWHOUSE AMBAR WHERE ST.SOURCEINDEX = AMBAR.NR AND AMBAR.FIRMNR = 20) AS [KAYNAK AMBAR],
+	(SELECT AMBAR.NAME FROM L_CAPIWHOUSE AMBAR WHERE ST.DESTINDEX = AMBAR.NR AND AMBAR.FIRMNR = 20) AS [HEDEF AMBAR]
+	
+FROM 
+	LG_020_01_STLINE ST WITH(NOLOCK) INNER JOIN
+	LG_020_CLCARD CL WITH(NOLOCK) ON ST.CLIENTREF = CL.LOGICALREF INNER JOIN
+	LG_020_ITEMS IT WITH(NOLOCK) ON ST.STOCKREF = IT.LOGICALREF INNER JOIN
+	LG_020_01_INVOICE INV WITH(NOLOCK) ON ST.INVOICEREF = INV.LOGICALREF
+
+WHERE ST.TRCODE IN (6,7,8)
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------
+
+
+SELECT 
+	'20' AS [ŞİRKET],
+	CL.CODE,
+	CL.DEFINITION_,
+	CLF.YEAR_,
+	CLF.MONTH_,
+	CLF.TRCODE,
+	CASE		
+	 when CLF.TRCODE = 1 then 'Nakit Tahsilat'
+     when CLF.TRCODE = 2 then 'Nakit Ödeme'
+     when CLF.TRCODE = 3 then 'Borç Dekontu'
+     when CLF.TRCODE = 4 then 'Alacak Dekontu'
+     when CLF.TRCODE = 5 then 'Virman Işlemi'
+     when CLF.TRCODE = 6 then 'Kur Farkı İşlemi'
+     when CLF.TRCODE = 12 then 'Özel İşlem'
+     when CLF.TRCODE = 20 then 'Gelen Havaleler'
+     when CLF.TRCODE = 21 then 'Gönderilen Havaleler'
+     when CLF.TRCODE = 31 then 'Satınalma Faturası'
+     when CLF.TRCODE = 32 then 'Perakende Satış İade Faturası'
+     when CLF.TRCODE = 24 then 'Döviz Alış Belgesi'
+     when CLF.TRCODE = 25 then 'Döviz Satış Belgesi'
+     when CLF.TRCODE = 33 then 'Toptan Satış İade Faturası'
+     when CLF.TRCODE = 34 then 'Alınan Hizmet Faturası'
+     when CLF.TRCODE = 35 then 'Alınan Proforma Faturası'
+     when CLF.TRCODE = 36 then 'Satınalma İade Faturası'
+     when CLF.TRCODE = 37 then 'Perakende Satış Faturası'
+     when CLF.TRCODE = 38 then 'Toptan Satış Faturası'
+     when CLF.TRCODE = 39 then 'Verilen Hizmet Faturası'
+     when CLF.TRCODE = 40 then 'Verilen Proforma Faturası'
+     when CLF.TRCODE = 41 then 'Verilen Vade Farkı Faturası'
+     when CLF.TRCODE = 42 then 'Alınan Vade Farkı Faturası'
+     when CLF.TRCODE = 43 then 'Alınan Fiyat Farkı Faturası'
+     when CLF.TRCODE = 44 then 'Verilen Fiyat Farkı Faturası'
+     when CLF.TRCODE = 46 then 'Alınan Serbest Meslek Makbuzu'
+     when CLF.TRCODE = 28 then 'Banka Alınan Hizmet Faturası'
+     when CLF.TRCODE = 56 then 'Müstahsil Makbuzu'
+     when CLF.TRCODE = 61 then 'Çek Girişi'
+     when CLF.TRCODE = 62 then 'Senet Girişi'
+     when CLF.TRCODE = 63 then 'Çek Çıkış Cari Hesaba'
+     when CLF.TRCODE = 64 then 'Senet Çıkış Cari Hesaba'
+     when CLF.TRCODE = 70 then 'Kredi Kartı Fişi'
+     when CLF.TRCODE = 71 then 'Kredi Kartı İade Fişi'
+	 when CLF.TRCODE = 72 THEN 'Firma Kredi Kartı Fişi'
+	 when CLF.TRCODE = 73 THEN 'Firma Kredi Kartı Fişi İade' 
+     when CLF.TRCODE = 14 then 'Açılış Fişi'
+     when CLF.TRCODE = 81 then 'Ödemeli Satış Siparişi'
+     when CLF.TRCODE = 82 then 'Ödemeli Satınalma Siparişi'
+	END AS [CARİ İŞLEM BELGE TÜRÜ],
+	CASE 
+		WHEN CLF.TRCODE IN(32,33, 36) THEN SUM(CLF.AMOUNT)* -1
+		ELSE SUM(CLF.AMOUNT) 
+	END AS [TOPLAM]
+
+FROM
+	LG_020_01_CLFLINE CLF WITH(NOLOCK) INNER JOIN
+	LG_020_CLCARD CL WITH(NOLOCK) ON CLF.CLIENTREF = CL.LOGICALREF
+
+GROUP BY
+	CL.CODE,
+	CL.DEFINITION_,
+	CLF.YEAR_,
+	CLF.TRCODE,
+	CLF.MONTH_,
+	CASE		
+	 when CLF.TRCODE = 1 then 'Nakit Tahsilat'
+     when CLF.TRCODE = 2 then 'Nakit Ödeme'
+     when CLF.TRCODE = 3 then 'Borç Dekontu'
+     when CLF.TRCODE = 4 then 'Alacak Dekontu'
+     when CLF.TRCODE = 5 then 'Virman Işlemi'
+     when CLF.TRCODE = 6 then 'Kur Farkı İşlemi'
+     when CLF.TRCODE = 12 then 'Özel İşlem'
+     when CLF.TRCODE = 20 then 'Gelen Havaleler'
+     when CLF.TRCODE = 21 then 'Gönderilen Havaleler'
+     when CLF.TRCODE = 31 then 'Satınalma Faturası'
+     when CLF.TRCODE = 32 then 'Perakende Satış İade Faturası'
+     when CLF.TRCODE = 24 then 'Döviz Alış Belgesi'
+     when CLF.TRCODE = 25 then 'Döviz Satış Belgesi'
+     when CLF.TRCODE = 33 then 'Toptan Satış İade Faturası'
+     when CLF.TRCODE = 34 then 'Alınan Hizmet Faturası'
+     when CLF.TRCODE = 35 then 'Alınan Proforma Faturası'
+     when CLF.TRCODE = 36 then 'Satınalma İade Faturası'
+     when CLF.TRCODE = 37 then 'Perakende Satış Faturası'
+     when CLF.TRCODE = 38 then 'Toptan Satış Faturası'
+     when CLF.TRCODE = 39 then 'Verilen Hizmet Faturası'
+     when CLF.TRCODE = 40 then 'Verilen Proforma Faturası'
+     when CLF.TRCODE = 41 then 'Verilen Vade Farkı Faturası'
+     when CLF.TRCODE = 42 then 'Alınan Vade Farkı Faturası'
+     when CLF.TRCODE = 43 then 'Alınan Fiyat Farkı Faturası'
+     when CLF.TRCODE = 44 then 'Verilen Fiyat Farkı Faturası'
+     when CLF.TRCODE = 46 then 'Alınan Serbest Meslek Makbuzu'
+     when CLF.TRCODE = 28 then 'Banka Alınan Hizmet Faturası'
+     when CLF.TRCODE = 56 then 'Müstahsil Makbuzu'
+     when CLF.TRCODE = 61 then 'Çek Girişi'
+     when CLF.TRCODE = 62 then 'Senet Girişi'
+     when CLF.TRCODE = 63 then 'Çek Çıkış Cari Hesaba'
+     when CLF.TRCODE = 64 then 'Senet Çıkış Cari Hesaba'
+     when CLF.TRCODE = 70 then 'Kredi Kartı Fişi'
+     when CLF.TRCODE = 71 then 'Kredi Kartı İade Fişi'
+	   when CLF.TRCODE = 72 THEN 'Firma Kredi Kartı Fişi'
+     when CLF.TRCODE = 14 then 'Açılış Fişi'
+     when CLF.TRCODE = 81 then 'Ödemeli Satış Siparişi'
+     when CLF.TRCODE = 82 then 'Ödemeli Satınalma Siparişi' 
+	 END
+   
+   
+   
+   
+   
+   
+   -----------------------------------------------
+   
+   
+   
+   SELECT	
+	'020' AS [ŞİRKET],
+	CL.CODE as [CARİ KODU], 
+	CL.DEFINITION_ AS [CARİ UNVANI], 
+	CL.SPECODE AS [CARİ ÖZEL KODU 1], 
+	CL.SPECODE2 AS [CARİ ÖZEL KODU 2]
+
+FROM 
+	LG_020_CLCARD CL WITH(NOLOCK) WHERE DATALENGTH(CL.DEFINITION_) > 0
+  
+  
+  
+  
+  
+-----------------------------------------------------------------------
+
+
+
+
+
+
+
