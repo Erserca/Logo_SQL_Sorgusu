@@ -225,7 +225,7 @@ FROM
 -----------------------------------------------------------------------
 
 
-
+Password=******;Persist Security Info=True;User ID=**;Data Source=serverName;Packet Size=4096;Workstation ID=PC;Initial Catalog=dbName
 
 
 
