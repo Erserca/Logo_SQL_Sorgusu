@@ -1,0 +1,77 @@
+SELECT 
+	ST.MONTH_ AS [AY]
+	,ST.YEAR_ AS [YIL]
+	,CL.DEFINITION_ AS [CARİ UNVAN]
+	,CL.CODE AS [CARİ KOD]
+	,CL.SPECODE AS [CARİ ÖK 1]
+	,ISNULL(STF.INVNO,'') AS [FATURA NO]
+	,CASE 
+      when ST.TRCODE = 1 then 'Satınalma Faturası'
+      when ST.TRCODE = 2 then 'Perakende İade Faturası'
+      when ST.TRCODE = 3 then 'Toptan Satış İade Faturası'
+      when ST.TRCODE = 4 and ST.STFICHEREF =0 then 'Alınan Hizmet Faturası'
+      when ST.TRCODE = 4 and ST.STFICHEREF >0 then 'Konsinye Çıkış İade İrsaliyesi'
+      when ST.TRCODE = 5 and ST.STFICHEREF =0 then 'Alınan Proforma Faturası'
+      when ST.TRCODE = 5 and ST.STFICHEREF >0 then 'Konsinye Giriş İrsaliyesi'
+      when ST.TRCODE = 6 then 'Satınalma İade Faturası'
+      when ST.TRCODE = 7 then 'Perakende Satış Faturası'
+      when ST.TRCODE = 8 then 'Toptan Satış Faturası'
+      when ST.TRCODE = 9 and ST.STFICHEREF =0 then 'Verilen Hizmet Faturası'
+      when ST.TRCODE = 9 and ST.STFICHEREF >0 then 'Konsinye Çıkış İrsaliyesi'
+      when ST.TRCODE = 10 and ST.STFICHEREF =0 then 'Verilen Proforma Faturası'
+      when ST.TRCODE = 10 and ST.STFICHEREF >0 then 'Konsinye Giriş İade İrsaliyesi'
+      when ST.TRCODE = 11 then 'Fire Fişi'
+      when ST.TRCODE = 12 then 'Sarf Fişi'
+      when ST.TRCODE = 13 and ST.STFICHEREF =0 then 'Alınan Fiyat Farkı Faturası'
+      when ST.TRCODE = 13 and ST.STFICHEREF >0 then 'Üretimden Giriş Fişi'
+      when ST.TRCODE = 14 and ST.STFICHEREF =0 then 'Verilen Fiyat Farkı Faturası'
+      when ST.TRCODE = 14 and ST.STFICHEREF >0 then 'Devir Fişi'
+      when ST.TRCODE = 25 then 'Ambar Fişi'
+      when ST.TRCODE = 50 then 'Sayım Fazlası'
+      when ST.TRCODE = 51 then 'Sayım Eksiği'
+	END AS [BELGE TÜRÜ]
+	,CASE 
+		WHEN ST.LINETYPE IN (4) THEN SRV.CODE
+		WHEN ST.LINETYPE IN (0,5,6,7,8,9) THEN IT.CODE
+	END AS [MALZEME/HİZMET KODU]
+	,CASE 
+		WHEN ST.LINETYPE IN (4) THEN SRV.DEFINITION_
+		WHEN ST.LINETYPE IN (0,5,6,7,8,9) THEN IT.NAME
+	END AS [MALZEME/HİZMET ADI]
+	,CASE 
+		WHEN ST.LINETYPE IN (4) THEN SRV.SPECODE
+		WHEN ST.LINETYPE IN (0,5,6,7,8,9) THEN IT.SPECODE
+	END AS [MALZEME/HİZMET Ö.K. 1]
+	,ST.AMOUNT AS [ADET]
+	,ST.PRICE AS [FİYAT]
+
+
+-----------------------------------------------------
+	,CASE 
+		WHEN ST.TRCODE IN (1,3,4) THEN  ST.TOTAL
+		ELSE 0 
+	END AS [TOPLAM (GİDER)]
+	,CASE 
+		WHEN ST.TRCODE IN (6,7,8,9) THEN  ST.TOTAL
+		ELSE 0 
+	END AS [TOPLAM (GELİR)]
+	---- Buraya GİDER ve GELİR yazdım ama, asıl amaç fatura türlerine göre iki sütun oluşturmak. 
+	---- Silip aşağıdaki şekilde de yazablirsiniz.
+-----------------------------------------------------
+		/*
+			,ST.TOTAL AS [TOPLAM]
+
+		*/
+
+	,EMC.CODE AS [MASRAF MERKEZİ KODU]
+	,EMC.DEFINITION_ AS [MASRAF MERKEZİ AÇIKLAMASI]
+
+FROM 
+	LG_001_01_STLINE ST WITH(NOLOCK) LEFT JOIN
+	LG_001_CLCARD CL WITH(NOLOCK) ON ST.CLIENTREF = CL.LOGICALREF LEFT JOIN
+	LG_001_ITEMS IT WITH(NOLOCK) ON ST.STOCKREF = IT.LOGICALREF LEFT JOIN
+	LG_001_SRVCARD SRV WITH(NOLOCK) ON ST.STOCKREF = SRV.LOGICALREF LEFT JOIN
+	LG_001_EMCENTER EMC WITH(NOLOCK) ON ST.CENTERREF = EMC.LOGICALREF LEFT JOIN
+	LG_001_01_STFICHE STF WITH (NOLOCK) ON ST.STFICHEREF = STF.LOGICALREF 
+
+WHERE ST.TRCODE IN (1,2,3,4,6,7,8,9)
